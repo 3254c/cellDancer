@@ -547,10 +547,18 @@ def _train_thread(datamodule,
                   model_save_path=None):
     
     try:
-        seed = 0
-        torch.manual_seed(seed)
-        random.seed(seed)
-        np.random.seed(seed)
+        # seed = 0
+        #torch.manual_seed(seed)
+        #torch.manual_seed(1) #これやっても何故か変わらない。
+        # random.seed(seed)
+        # pl.seed_everything(0)
+        # # NumPyでの乱数生成
+        # numpy_rand = np.random.rand(3)
+        # print(numpy_rand)
+
+        #np.random.seed(seed) #これだけが再現性に効いている
+        # # NumPyでの乱数生成
+        # numpy_rand = np.random.rand(3)
 
         # iniate network (DNN_layer) and loss function (DynamicModule)
         backbone = DNN_module(DNN_layer(100, 100), n_neighbors=n_neighbors)
@@ -592,7 +600,7 @@ def _train_thread(datamodule,
             trainer = pl.Trainer(
                 max_epochs=max_epoches, 
                 progress_bar_refresh_rate=0, 
-                reload_dataloaders_every_n_epochs=1, 
+                reload_dataloaders_every_n_epochs=1,
                 logger = False,
                 enable_checkpointing = False,
                 enable_model_summary=False,
