@@ -544,9 +544,14 @@ def _train_thread(datamodule,
                   loss_func=None,
                   n_neighbors=None,
                   ini_model=None,
-                  model_save_path=None):
+                  model_save_path=None,
+                  seed = None):
     
     try:
+        if seed is not None:
+            torch.manual_seed(seed)
+            random.seed(seed)
+            np.random.seed(seed)
         # seed = 0
         #torch.manual_seed(seed)
         #torch.manual_seed(1) #これやっても何故か変わらない。
@@ -711,6 +716,7 @@ def velocity(
     loss_func='cosine',
     n_jobs=-1,
     save_path=None,
+    seed = None
 ):
 
     """Velocity estimation for each cell.
@@ -781,6 +787,8 @@ def velocity(
     gene_list_buring=[list(cell_type_u_s.gene_name.drop_duplicates())[0]]
     datamodule=build_datamodule(cell_type_u_s,speed_up,norm_u_s,permutation_ratio,norm_cell_distribution,gene_list=gene_list_buring)
 
+    print(seed, 'seed')
+
     result = Parallel(n_jobs=n_jobs, backend="loky")(
         delayed(_train_thread)(
             datamodule = datamodule,
@@ -793,7 +801,8 @@ def velocity(
             dt=dt,
             loss_func=loss_func,
             save_path=save_path,
-            norm_u_s=norm_u_s)
+            norm_u_s=norm_u_s,
+            seed = seed)
         for data_index in range(0,len(gene_list_buring)))
 
     # clean directory
@@ -842,7 +851,8 @@ def velocity(
             learning_rate=learning_rate,
             patience=patience,
             save_path=save_path,
-            norm_u_s=norm_u_s)
+            norm_u_s=norm_u_s,
+            seed = seed)
             for data_index in range(0,len(gene_list_batch)))
 
         # unpredicted gene list
